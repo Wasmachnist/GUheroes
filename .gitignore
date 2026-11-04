@@ -66,6 +66,12 @@
 *.ogg
 DATA/NETLODR.DAT
 
+# Original HoMM2 (GOG) data folders copied into the repo root.
+# Do not ignore /maps/: it also holds fheroes2's own tracked maps.
+/anim/
+/data/
+/music/
+
 # build directory
 build
 
