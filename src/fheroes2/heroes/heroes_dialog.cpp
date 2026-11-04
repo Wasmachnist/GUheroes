@@ -40,6 +40,7 @@
 #include "game_assets.h"
 #include "game_hotkeys.h"
 #include "game_interface.h"
+#include "gu_heroes.h"
 #include "heroes.h" // IWYU pragma: associated
 #include "heroes_base.h"
 #include "heroes_indicator.h"
@@ -610,6 +611,12 @@ int Heroes::OpenDialog( const bool readonly, const bool fade, const bool disable
                 _portrait = newPortrait;
                 PortraitRedraw( portPos.x, portPos.y, PORT_BIG, display );
                 needRedraw = true;
+            }
+        }
+        else if ( !isEditor && le.MouseClickLeft( portPos ) ) {
+            // GU mod: show the biography of a GU hero.
+            if ( const GU::HeroData * guHero = GU::getHeroData( _id ); guHero != nullptr && guHero->biography != nullptr ) {
+                fheroes2::showStandardTextMessage( GetName(), _( guHero->biography ), Dialog::OK );
             }
         }
         else if ( le.isMouseRightButtonPressedInArea( portPos ) ) {

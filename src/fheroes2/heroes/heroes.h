@@ -768,6 +768,9 @@ private:
 
     static uint32_t _getStartingXp();
 
+    // GU mod: overrides the race defaults with the values from gu_heroes.cpp if this is a GU hero.
+    void _applyGuStartingValues( const bool primarySkills, const bool secondarySkills, const bool army );
+
     uint32_t _experience{ 0 };
     std::string _name;
 

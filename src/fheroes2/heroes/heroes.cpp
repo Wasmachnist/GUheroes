@@ -47,6 +47,7 @@
 #include "game_auto_playtest.h"
 #include "game_io.h"
 #include "game_static.h"
+#include "gu_heroes.h"
 #include "ground.h"
 #include "icn.h"
 #include "image.h"
@@ -238,6 +239,10 @@ const char * Heroes::getDefaultName( const int heroId )
 {
     assert( heroId >= UNKNOWN && heroId < HEROES_COUNT );
 
+    if ( const GU::HeroData * guHero = GU::getHeroData( heroId ); guHero != nullptr ) {
+        return _( guHero->name );
+    }
+
     return _( defaultHeroNames[heroId] );
 }
 
@@ -279,6 +284,8 @@ Heroes::Heroes( const int heroId, const int race )
             AppendSpellToBook( Spell( spellId ), true );
         }
     }
+
+    _applyGuStartingValues( true, true, true );
 
     if ( !_spellPoints ) {
         SetSpellPoints( GetMaxSpellPoints() );
@@ -452,6 +459,8 @@ void Heroes::LoadFromMP2( const int32_t mapIndex, const PlayerColor colorType, c
     // Reset the army to default
     _army.Reset( true );
 
+    _applyGuStartingValues( true, true, true );
+
     ROStreamBuf dataStream( data );
 
     // Skip first unused byte.
@@ -614,11 +623,13 @@ void Heroes::applyHeroMetadata( const Maps::Map_Format::HeroMetadata & heroMetad
     if ( !isEditor ) {
         // Reset primary skills and initial spell to defaults.
         HeroBase::LoadDefaults( HeroBase::HEROES, _race );
+        _applyGuStartingValues( true, false, false );
     }
 
     if ( !Maps::loadHeroArmy( _army, heroMetadata ) && !isEditor ) {
         // Reset the army to default
         _army.Reset( true );
+        _applyGuStartingValues( false, false, true );
     }
 
     // Hero's portrait.
@@ -686,6 +697,7 @@ void Heroes::applyHeroMetadata( const Maps::Map_Format::HeroMetadata & heroMetad
     else if ( !isEditor ) {
         // Reset secondary skills to defaults
         _secondarySkills = Skill::SecSkills( _race );
+        _applyGuStartingValues( false, true, false );
     }
 
     // For Editor we need to fill all the rest of the 8 skills with the empty ones.
@@ -1965,6 +1977,7 @@ void Heroes::Dismiss( const int reason )
     // Reset army to default state for hero's race if hero did not surrender in battle.
     if ( ( reason & Battle::RESULT_SURRENDER ) == 0 ) {
         _army.Reset( true );
+        _applyGuStartingValues( false, false, true );
     }
     else if ( !_army.isValid() ) {
         // Reset empty army for surrendered hero.
@@ -2009,6 +2022,41 @@ int Heroes::GetControl() const
 uint32_t Heroes::_getStartingXp()
 {
     return Rand::Get( 40, 90 );
+}
+
+void Heroes::_applyGuStartingValues( const bool primarySkills, const bool secondarySkills, const bool army )
+{
+    const GU::HeroData * guHero = GU::getHeroData( _id );
+    if ( guHero == nullptr || guHero->race != _race ) {
+        return;
+    }
+
+    if ( primarySkills ) {
+        attack = guHero->attack;
+        defense = guHero->defense;
+        power = guHero->power;
+        knowledge = guHero->knowledge;
+    }
+
+    if ( secondarySkills ) {
+        _secondarySkills = Skill::SecSkills();
+
+        for ( const GU::SecondarySkillEntry & entry : guHero->secondarySkills ) {
+            if ( entry.skill != Skill::Secondary::UNKNOWN ) {
+                _secondarySkills.AddSkill( Skill::Secondary( entry.skill, entry.level ) );
+            }
+        }
+    }
+
+    if ( army ) {
+        _army.Clean();
+
+        for ( const GU::TroopEntry & entry : guHero->army ) {
+            if ( entry.monster != Monster::UNKNOWN && entry.count > 0 ) {
+                _army.JoinTroop( Monster( entry.monster ), entry.count, false );
+            }
+        }
+    }
 }
 
 void Heroes::ActionPreBattle()

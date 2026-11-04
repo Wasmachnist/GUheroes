@@ -191,6 +191,7 @@
     <ClCompile Include="src\fheroes2\heroes\direction.cpp" />
     <ClCompile Include="src\fheroes2\heroes\heroes.cpp" />
     <ClCompile Include="src\fheroes2\heroes\heroes_action.cpp" />
+    <ClCompile Include="src\fheroes2\heroes\gu_heroes.cpp" />
     <ClCompile Include="src\fheroes2\heroes\heroes_base.cpp" />
     <ClCompile Include="src\fheroes2\heroes\heroes_dialog.cpp" />
     <ClCompile Include="src\fheroes2\heroes\heroes_indicator.cpp" />
@@ -414,6 +415,7 @@
     <ClInclude Include="src\fheroes2\h2d\h2d.h" />
     <ClInclude Include="src\fheroes2\heroes\direction.h" />
     <ClInclude Include="src\fheroes2\heroes\heroes.h" />
+    <ClInclude Include="src\fheroes2\heroes\gu_heroes.h" />
     <ClInclude Include="src\fheroes2\heroes\heroes_base.h" />
     <ClInclude Include="src\fheroes2\heroes\heroes_indicator.h" />
     <ClInclude Include="src\fheroes2\heroes\heroes_recruits.h" />
